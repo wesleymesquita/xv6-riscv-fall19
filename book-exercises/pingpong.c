@@ -48,13 +48,14 @@ int main(int argc, char *argv[]){
     }
     wait(NULL);
     ftime(&tb_end);
-    printf("Took %dms for %d exchanges\n",
-           ((tb_end.time-tb_ini.time)*1000 + (tb_end.millitm - tb_ini.millitm)), loops);
+    printf("Took %ldms for %d exchanges\n",
+           (long)((tb_end.time-tb_ini.time)*1000 + (tb_end.millitm - tb_ini.millitm)), loops);
+    close(pipefd_c[1]);
+    close(pipefd_p[0]);
   }else{
     close(pipefd_c[1]);
     close(pipefd_p[0]);
-    i = loops;
-    for(;i-->0;){
+    for(;loops-->0;){
         read(pipefd_c[0], &ball, 1);
  #ifdef DEBUG
         fprintf(stderr, "On child, got: %c\n", ball);
@@ -62,6 +63,8 @@ int main(int argc, char *argv[]){
         ball = 'c';
         write(pipefd_p[1], &ball, 1);
     }
+    close(pipefd_p[1]);
+    close(pipefd_c[0]);
   }
   return 0;
 }
